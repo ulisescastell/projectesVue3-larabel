@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import axios from "axios";
+axios.get("/links");
+definePageMeta({
+  middleware: ["auth"],
+});
 const links = [
   {
     short_link: "234jlsfsf",
@@ -19,14 +24,7 @@ const links = [
     id: 3,
   },
 ];
-
-definePageMeta({
-  middleware: ["auth"]
-});
-
 </script>
-
-
 <template>
   <div>
     <nav class="flex justify-between mb-4 items-center">

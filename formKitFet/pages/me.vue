@@ -1,11 +1,8 @@
 <script setup>
-import { useAuth } from "~/composables/useAuth";
 definePageMeta({
   middleware: ["auth"],
 });
-
-const { user } = useAuth()
-
+const { user } = useAuth();
 </script>
 <template>
   <p><strong>User Name:</strong> {{ user.name }}</p>
