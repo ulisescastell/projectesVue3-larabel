@@ -36,10 +36,11 @@ class Links extends Controller
         return response()->json($link, 201);
     }
 
-    function update($id, UpdateLinkRequest $request){
-        $link = Link::find($id);
+    function update($short_link, UpdateLinkRequest $request){
+        $link = Link::where('short_link', $short_link)->firstOrFail();
         $link->full_link = $request->full_link;
         $link->short_link = $request->short_link;
+        $link->update($request->validated());
         $link->save();
         return response()->json($link);
     }

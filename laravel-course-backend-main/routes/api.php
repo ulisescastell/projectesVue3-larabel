@@ -20,8 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->resource('/links', Links::class );
-
 Route::get("/profiles/{id}", function ($id) {
     $user = User::find($id);
     $links = $user->links()->select('short_link')->get();
@@ -30,3 +28,13 @@ Route::get("/profiles/{id}", function ($id) {
         "links"=> $links
     ]);
 });
+
+Route::post('/links', [Links::class, 'store'])->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('links', Links::class);
+});
+
+Route::put('/links/{link}', [Links::class, 'update']);
+
+Route::delete('/links/{link}', [Links::class, 'destroy']);
