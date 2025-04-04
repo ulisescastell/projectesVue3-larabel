@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps({
   name: { type: String, required: true },
-  modelValue: { type: String, required: true },
+  modelValue: { type: String, required: true, default: "" },
 });
 
 defineEmits<{
@@ -24,10 +24,10 @@ const desc = computed(() => props.modelValue.startsWith("-"));
     >
       <slot></slot>
       <button v-if="sorting && desc">
-        <IconChevronDown class="inline w-2 ml-2" />
+        <IconChevronDown class="inline w-[10] ml-2" />
       </button>
       <button v-if="sorting && !desc">
-        <IconChevronUp class="inline w-2 ml-2" />
+        <IconChevronUp class="inline w-[10] ml-2" />
       </button>
     </button>
   </th>

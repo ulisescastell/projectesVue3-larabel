@@ -1,26 +1,31 @@
 <script setup lang="ts">
-defineProps({
-  modelValue: { type: String, required: true },
-});
+import { ref, watch } from 'vue'
 
-defineEmits<{
-  (e: "update:modelValue", payload: string): void;
-}>();
+const props = defineProps({
+  modelValue: { type: String, required: true }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const inputValue = ref(props.modelValue)
+
+watch(inputValue, (newVal) => {
+  emit('update:modelValue', newVal) // 🔥 emite en cada cambio (sin debounce por ahora)
+})
+
+watch(() => props.modelValue, (newVal) => {
+  inputValue.value = newVal
+})
 </script>
+
 <template>
   <div class="relative">
-    <IconSearch
-      class="w-3 w-3 absolute top-[50%] translate-y-[-50%] left-2 opacity-30"
-    />
-
+    <IconSearch class="w-3 absolute top-[50%] translate-y-[-50%] left-2 opacity-30" />
     <input
       type="text"
       placeholder="Search"
-      class="pl-10 p-2 rounded"
-      @input="
-        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-      "
-      :value="modelValue"
+      class="pl-10 p-2 rounded border-orange-500 border"
+      v-model="inputValue"
     />
   </div>
 </template>

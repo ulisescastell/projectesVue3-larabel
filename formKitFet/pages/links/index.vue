@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import axios from "axios";
-import { Link } from "~~/types";
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 //@ts-expect-error
 import { TailwindPagination } from "laravel-vue-pagination";
 import { useRoute, useRouter } from "vue-router";
 import TableTh from "@/components/TableTh.vue";
 import { useLinks } from "~~/composables/useLinks";
-import { handleError } from "vue";
+import SearchInput from "@/components/SearchInput.vue"; // ✅ Asegúrate que esté importado
 
 const route = useRoute();
 const router = useRouter();
@@ -26,19 +24,24 @@ const queries = ref({
 const { data, index: getLinks, destroy } = useLinks({ queries });
 
 async function handleDelete(id: number) {
-  try {
-    await destroy(id);
-    await getLinks();
-  } catch (error) {
-    console.error(error);
+  await destroy(id);
+  if (data.value) {
+    data.value.data = data.value.data.filter(link => link.id != id);
   }
 }
 
+// 🔄 Actualiza la URL y los datos si cambian los queries
 watch(queries, () => {
   router.push({ query: queries.value });
   getLinks();
 }, { deep: true });
 
+watch(() => queries.value["filter[full_link]"], () => {
+  queries.value.page = 1
+  getLinks() // <- aquí se lanza la búsqueda automáticamente
+})
+
+// 🔄 Cuando cambia la query de la URL, sincroniza
 watch(() => route.query, (newQuery) => {
   queries.value = { 
     page: Number(newQuery.page) || 1,
@@ -48,6 +51,10 @@ watch(() => route.query, (newQuery) => {
   };
 });
 
+// ✅ Nuevo watch: si cambia solo el texto de búsqueda, reinicia la página y busca
+watch(() => queries.value["filter[full_link]"], () => {
+  queries.value.page = 1;
+});
 
 onMounted(async () => {
   try {
@@ -56,15 +63,18 @@ onMounted(async () => {
     console.error("Error inicial:", error);
   }
 });
-
 </script>
+
 <template>
   <div>
     <nav class="flex justify-between mb-4 items-center">
       <h1 class="mb-0">My Links</h1>
       <div class="flex items-center">
+        <!-- ✅ Búsqueda funcional -->
         <SearchInput 
-        v-model="queries['filter[full_link]']" placeholder="Search my URL..." />
+          v-model="queries['filter[full_link]']" 
+          placeholder="Search my URL..."
+        />
         <NuxtLink to="/links/create" class="ml-4">
           <IconPlusCircle class="inline" /> Create New
         </NuxtLink>
@@ -96,10 +106,7 @@ onMounted(async () => {
             <td>
               <a :href="`${useRuntimeConfig().public.appURL}/${link.short_link}`" target="_blank">
                 {{
-                  useRuntimeConfig().public.appURL.replace(
-                    /^http(s?):\/\//,
-                    ""
-                  )
+                  useRuntimeConfig().public.appURL.replace(/^http(s?):\/\//, "")
                 }}/{{ link.short_link }}
               </a>
             </td>
@@ -118,26 +125,22 @@ onMounted(async () => {
           </tr>
         </tbody>
       </table>
-      <TailwindPagination :data="data" @pagination-change-page="queries.page = $event"/>
-      <div class="mt-5 flex justify-center gap-2">
 
-      </div>
+      <TailwindPagination 
+        :data="data" 
+        @pagination-change-page="queries.page = $event" 
+      />
     </div>
 
-    <!-- No links message for when table is empty -->
     <div v-else class="border-dashed border-gray-500 p-3 border-[1px] text-center">
       <div class="flex justify-center">
         <IconLink />
       </div>
       <p>
-        <!-- Show this if reason for no links is none found in search -->
-        <span v-if="false"> No links matching links found. </span>
-
-        <!-- Show this if reason for no links is User has none -->
-        <span v-else>
-          No links created yet
-          <NuxtLink to="/links/create" class="text-green-600">Go create your first link!</NuxtLink>
-        </span>
+        <span>No links created yet</span>
+        <NuxtLink to="/links/create" class="text-green-600">
+          Go create your first link!
+        </NuxtLink>
       </p>
     </div>
   </div>
