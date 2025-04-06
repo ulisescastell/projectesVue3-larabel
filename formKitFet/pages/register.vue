@@ -2,11 +2,6 @@
 import { RegisterPayload } from "@/types";
 import type { FormKitNode } from "@formkit/core";
 
-definePageMeta({
-  layout: "centered",
-  middleware: ["guest"],
-});
-
 const { register } = useAuth();
 
 async function handleRegister(payload: RegisterPayload, node?: FormKitNode) {
@@ -16,6 +11,12 @@ async function handleRegister(payload: RegisterPayload, node?: FormKitNode) {
     handleInvalidForm(err, node);
   }
 }
+
+definePageMeta({
+  layout: "centered",
+  middleware: ["guest"],
+});
+
 </script>
 <template>
   <div class="register">

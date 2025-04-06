@@ -1,9 +1,10 @@
 import { RawLink } from "~~/types"
 import { Link } from "~~/types"
 import { Ref } from "vue"
-import { PaginatedResponse } from "~~/types"
 import { ref } from "vue";
 import axios from "axios";
+import { PaginatedResponse } from "~~/types"
+
 
 interface UseLinksOptions {
     queries?: Ref<Record<string, string | number>>
@@ -31,7 +32,6 @@ export const useLinks = ({ queries = ref({})}: UseLinksOptions = {}) => {
 
     async function index(qs?: Record<string, string | number>) {
         qs = { ...queries.value, ...qs };
-        // @ts-expect-error
         const q = new URLSearchParams(qs).toString();
         const { data } = await axios.get<PaginatedResponse<RawLink>>(
             `/${slug}?${q}`

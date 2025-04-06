@@ -10,7 +10,7 @@ const emit = defineEmits(['update:modelValue'])
 const inputValue = ref(props.modelValue)
 
 watch(inputValue, (newVal) => {
-  emit('update:modelValue', newVal) // 🔥 emite en cada cambio (sin debounce por ahora)
+  emit('update:modelValue', newVal) 
 })
 
 watch(() => props.modelValue, (newVal) => {
@@ -21,11 +21,6 @@ watch(() => props.modelValue, (newVal) => {
 <template>
   <div class="relative">
     <IconSearch class="w-3 absolute top-[50%] translate-y-[-50%] left-2 opacity-30" />
-    <input
-      type="text"
-      placeholder="Search"
-      class="pl-10 p-2 rounded border-orange-500 border"
-      v-model="inputValue"
-    />
+    <input type="text" placeholder="Search" class="pl-10 p-2 rounded" v-model="inputValue" @keydown.enter.prevent />
   </div>
 </template>
